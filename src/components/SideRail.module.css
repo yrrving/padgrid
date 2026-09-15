@@ -95,3 +95,13 @@
   background: var(--bg-hover);
   color: var(--text-primary);
 }
+
+.fxBtnActive {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.fxBtnActive:hover {
+  background: var(--accent-hover);
+}

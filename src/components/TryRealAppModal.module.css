@@ -59,46 +59,60 @@
   margin-bottom: 18px;
 }
 
-.optionCard {
-  background: var(--bg-panel);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 16px;
-}
-
-.optionCard + .optionCard {
-  margin-top: 12px;
-}
-
-.optionHeader {
+.choiceRow {
   display: flex;
-  align-items: center;
   gap: 10px;
-  margin-bottom: 6px;
 }
 
-.optionIcon {
-  font-size: 1.2rem;
-}
-
-.optionTitle {
+.choiceBtn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 18px 10px;
+  border-radius: 14px;
+  background: var(--bg-panel);
+  border: 2px solid var(--border);
+  color: var(--text-primary);
   font-weight: 700;
-  font-size: 0.92rem;
+  font-size: 0.85rem;
+  text-align: center;
+  transition: border-color 0.12s, background 0.12s;
 }
 
-.optionDesc {
-  font-size: 0.82rem;
+.choiceBtn:hover {
+  border-color: var(--border-bright);
+  background: var(--bg-hover);
+}
+
+.choiceBtnActive {
+  border-color: var(--accent);
+  background: var(--accent-glow);
+}
+
+.choiceIcon {
+  font-size: 1.8rem;
+}
+
+.result {
+  margin-top: 16px;
+  padding: 14px;
+  background: var(--bg-panel);
+  border-radius: 12px;
+  text-align: center;
+}
+
+.resultText {
+  font-size: 0.85rem;
   color: var(--text-secondary);
   line-height: 1.5;
-}
-
-.optionActions {
-  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 .actionBtn {
   display: inline-block;
-  padding: 8px 16px;
+  padding: 9px 18px;
   border-radius: 9px;
   background: var(--accent);
   color: #fff;
@@ -109,10 +123,4 @@
 
 .actionBtn:hover {
   background: var(--accent-hover);
-}
-
-.linkPending {
-  font-size: 0.78rem;
-  color: var(--text-dim);
-  font-style: italic;
 }

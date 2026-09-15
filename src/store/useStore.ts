@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import type { SideView, TourStep } from '../models/types';
 import { CATEGORIES } from '../data/categories';
 import * as audio from '../audio/audioEngine';
+import type { FxId } from '../audio/fx';
 
 interface Store {
   mode: 'home' | 'grid';
@@ -10,12 +11,14 @@ interface Store {
   sideView: SideView;
   tourStep: TourStep | null; // null = no guided tour running
   volumes: number[];
+  activeFxId: FxId | null;
 
   enterGrid: (withTour: boolean) => void;
   goHome: () => void;
   pressPad: (col: number, row: number) => void;
   setSideView: (v: SideView) => void;
   setVolume: (col: number, v: number) => void;
+  toggleFx: (id: FxId) => void;
   stopAll: () => void;
   skipTour: () => void;
 }
@@ -31,19 +34,23 @@ export const useStore = create<Store>((set, get) => ({
   sideView: 'fx',
   tourStep: null,
   volumes: Array(COL_COUNT).fill(0.8),
+  activeFxId: null,
 
   enterGrid: (withTour) => {
+    audio.setActiveFx(null);
     set({
       mode: 'grid',
       activePads: Array(COL_COUNT).fill(null),
       tourStep: withTour ? 'press-pad' : null,
       sideView: 'fx',
+      activeFxId: null,
     });
   },
 
   goHome: () => {
     audio.stopAll();
-    set({ mode: 'home', activePads: Array(COL_COUNT).fill(null), tourStep: null });
+    audio.setActiveFx(null);
+    set({ mode: 'home', activePads: Array(COL_COUNT).fill(null), tourStep: null, activeFxId: null });
   },
 
   pressPad: (col, row) => {
@@ -79,6 +86,13 @@ export const useStore = create<Store>((set, get) => ({
     set({ sideView: v });
     if (tourStep === 'volumes' && v === 'volumes') set({ tourStep: 'fx' });
     else if (tourStep === 'fx' && v === 'fx') set({ tourStep: 'stop-all' });
+  },
+
+  toggleFx: (id) => {
+    const current = get().activeFxId;
+    const next = current === id ? null : id;
+    audio.setActiveFx(next);
+    set({ activeFxId: next });
   },
 
   setVolume: (col, v) => {

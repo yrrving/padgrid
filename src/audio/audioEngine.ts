@@ -1,4 +1,8 @@
 import type { CategoryId } from '../models/types';
+import { BEATS_PER_BAR, BAR_DUR } from './constants';
+import { buildFx, type FxId, type FxHandle } from './fx';
+
+export { BAR_DUR };
 
 // ─── Shared transport ───────────────────────────────────────────────────────
 // All active columns schedule their audio against one shared bar grid, so
@@ -7,25 +11,50 @@ import type { CategoryId } from '../models/types';
 // stays in time" behavior real clip-launcher apps have, and a good, concrete
 // thing for the guided tour to point out (see TourStep 'other-column').
 
-const BPM = 96;
-const BEATS_PER_BAR = 4;
-export const BAR_DUR = (60 / BPM) * BEATS_PER_BAR; // seconds
 const LOOKAHEAD = 0.15; // how far ahead (s) we schedule audio each tick
 const TICK_MS = 60;
 
 let ctx: AudioContext | null = null;
 let noiseBuffer: AudioBuffer | null = null;
 let masterGain: GainNode | null = null;
+// Everything passes through fxInput before reaching the speakers — with no
+// FX active it connects straight to destination (bypass); setActiveFx tears
+// that down and rebuilds fxInput -> [effect] -> destination instead.
+let fxInput: GainNode | null = null;
+let activeFx: { id: FxId; handle: FxHandle } | null = null;
 
 function getCtx(): AudioContext {
   if (!ctx) {
     ctx = new AudioContext();
     masterGain = ctx.createGain();
     masterGain.gain.value = 0.9;
-    masterGain.connect(ctx.destination);
+    fxInput = ctx.createGain();
+    masterGain.connect(fxInput);
+    fxInput.connect(ctx.destination);
   }
   if (ctx.state === 'suspended') ctx.resume();
   return ctx;
+}
+
+/** Swaps the master-bus effect. Pass null to bypass (dry). */
+export function setActiveFx(id: FxId | null) {
+  const c = getCtx();
+  if (activeFx) {
+    activeFx.handle.stop();
+    activeFx = null;
+  } else {
+    fxInput!.disconnect(c.destination);
+  }
+  if (id) {
+    const handle = buildFx(c, id, fxInput!, c.destination);
+    activeFx = { id, handle };
+  } else {
+    fxInput!.connect(c.destination);
+  }
+}
+
+export function getActiveFx(): FxId | null {
+  return activeFx?.id ?? null;
 }
 
 function getNoiseBuffer(c: AudioContext): AudioBuffer {
@@ -97,27 +126,57 @@ type PatternFn = (c: AudioContext, dest: AudioNode, barStart: number, variant: n
 
 const beatDur = BAR_DUR / BEATS_PER_BAR;
 
+// Drums didn't sound different between the 4 row variants at all — same
+// pattern regardless of `variant` — which is exactly the kind of thing the
+// tour is supposed to demonstrate ("byt inom samma kolumn"), so it needs to
+// actually be audible. Each variant now has its own kick/snare placement,
+// hat density and kick pitch instead of one pattern reused everywhere.
+interface DrumVariant {
+  kickBeats: number[]; // which of the 4 beats get a kick
+  snareBeats: number[]; // which get a snare/clap
+  hatDiv: 8 | 16; // hat subdivisions per bar
+  hatGain: number;
+  kickPitch: number; // Hz, higher = brighter/tighter kick
+  swing: number; // 0..0.15, delays odd hat subdivisions for a looser feel
+}
+
+const DRUM_VARIANTS: DrumVariant[] = [
+  // Mjuk — sparse, soft, just a heartbeat kick and light hats.
+  { kickBeats: [0], snareBeats: [], hatDiv: 8, hatGain: 0.14, kickPitch: 85, swing: 0.06 },
+  // Skarp — tight four-on-the-floor kick/snare, crisp hats, no swing.
+  { kickBeats: [0, 2], snareBeats: [1, 3], hatDiv: 8, hatGain: 0.3, kickPitch: 150, swing: 0 },
+  // Varm — laid-back half-time groove, warm low kick, loose swing.
+  { kickBeats: [0], snareBeats: [2], hatDiv: 8, hatGain: 0.16, kickPitch: 70, swing: 0.12 },
+  // Ljus — busy 16th-note hats, bright punchy double kick, no swing.
+  { kickBeats: [0, 2, 3], snareBeats: [1, 3], hatDiv: 16, hatGain: 0.26, kickPitch: 175, swing: 0 },
+];
+
 const PATTERNS: Record<CategoryId, PatternFn> = {
-  drums: (c, dest, t) => {
-    // Kick on 1 & 3, snare-ish noise on 2 & 4, closed hats on every 8th.
+  drums: (c, dest, t, variant) => {
+    const v = DRUM_VARIANTS[variant % DRUM_VARIANTS.length];
     for (let b = 0; b < BEATS_PER_BAR; b++) {
       const beatTime = t + b * beatDur;
-      if (b === 0 || b === 2) {
+      if (v.kickBeats.includes(b)) {
         const osc = c.createOscillator();
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(120, beatTime);
-        osc.frequency.exponentialRampToValueAtTime(45, beatTime + 0.15);
+        osc.frequency.setValueAtTime(v.kickPitch, beatTime);
+        osc.frequency.exponentialRampToValueAtTime(v.kickPitch * 0.36, beatTime + 0.15);
         const g = c.createGain();
         g.gain.setValueAtTime(0.9, beatTime);
         g.gain.exponentialRampToValueAtTime(0.001, beatTime + 0.22);
         osc.connect(g).connect(dest);
         osc.start(beatTime);
         osc.stop(beatTime + 0.25);
-      } else {
+      }
+      if (v.snareBeats.includes(b)) {
         noiseBurst(c, dest, beatTime, 0.14, 1800, 0.7, 0.5);
       }
-      noiseBurst(c, dest, beatTime, 0.03, 9000, 2, 0.22);
-      noiseBurst(c, dest, beatTime + beatDur / 2, 0.03, 9000, 2, 0.16);
+    }
+    const hatCount = v.hatDiv;
+    const hatStep = BAR_DUR / hatCount;
+    for (let i = 0; i < hatCount; i++) {
+      const swingOffset = i % 2 === 1 ? v.swing * hatStep : 0;
+      noiseBurst(c, dest, t + i * hatStep + swingOffset, 0.03, 9000, 2, v.hatGain);
     }
   },
   percussion: (c, dest, t) => {

@@ -1,13 +1,21 @@
 import React from 'react';
 import { useStore } from '../store/useStore';
 import { CATEGORIES } from '../data/categories';
+import type { FxId } from '../audio/fx';
 import guide from '../styles/guide.module.css';
 import styles from './SideRail.module.css';
 
-// FX pads are visual-only in this prototype (no real DSP wired up) — the
-// point here is the guided-tour interaction, not a working effects chain.
-// A real version would apply these to the currently selected pad(s).
-const FX_LIST = ['Stutter', 'Flanger', 'Gater', 'Autofilter', 'Delay', 'Reverb'];
+// Real master-bus effects (audio/fx.ts) — applied to everything currently
+// playing. Only one active at a time; pressing the active one again turns
+// it off (see useStore.toggleFx).
+const FX_LIST: { id: FxId; label: string }[] = [
+  { id: 'stutter', label: 'Stutter' },
+  { id: 'flanger', label: 'Flanger' },
+  { id: 'gater', label: 'Gater' },
+  { id: 'autofilter', label: 'Autofilter' },
+  { id: 'delay', label: 'Delay' },
+  { id: 'reverb', label: 'Reverb' },
+];
 
 export const SideRail: React.FC = () => {
   const sideView = useStore((s) => s.sideView);
@@ -15,6 +23,8 @@ export const SideRail: React.FC = () => {
   const volumes = useStore((s) => s.volumes);
   const setVolume = useStore((s) => s.setVolume);
   const tourStep = useStore((s) => s.tourStep);
+  const activeFxId = useStore((s) => s.activeFxId);
+  const toggleFx = useStore((s) => s.toggleFx);
 
   return (
     <div className={styles.rail}>
@@ -88,8 +98,12 @@ export const SideRail: React.FC = () => {
         ) : (
           <div className={styles.fxGrid}>
             {FX_LIST.map((fx) => (
-              <button key={fx} className={styles.fxBtn}>
-                {fx}
+              <button
+                key={fx.id}
+                className={`${styles.fxBtn} ${activeFxId === fx.id ? styles.fxBtnActive : ''}`}
+                onClick={() => toggleFx(fx.id)}
+              >
+                {fx.label}
               </button>
             ))}
           </div>
