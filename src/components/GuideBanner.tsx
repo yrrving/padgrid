@@ -10,7 +10,7 @@ const COPY: Record<TourStep, string> = {
   volumes: 'Så där låter ett par spår ihop. Tryck på "Volymer" härintill för att se volymreglagen',
   fx: 'Tryck på "FX" för att se effekterna',
   'stop-all': 'Sista steget — tryck på stopp-knappen för att tysta allt',
-  done: '🎉 Nu kan du grunderna! Testa fritt, eller gå hem och börja om.',
+  done: '🎉 Nu kan du grunderna! Testa fritt här, eller kolla in den riktiga appen.',
 };
 
 export const GuideBanner: React.FC = () => {

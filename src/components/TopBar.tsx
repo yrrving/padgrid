@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useStore } from '../store/useStore';
+import { TryRealAppModal } from './TryRealAppModal';
 import guide from '../styles/guide.module.css';
 import styles from './TopBar.module.css';
 
@@ -7,6 +8,13 @@ export const TopBar: React.FC = () => {
   const goHome = useStore((s) => s.goHome);
   const stopAll = useStore((s) => s.stopAll);
   const tourStep = useStore((s) => s.tourStep);
+  const [showRealApp, setShowRealApp] = useState(false);
+
+  // Nudge toward the real app the moment the guided tour finishes — never
+  // forced (the button below is always there too, for free-mode explorers).
+  useEffect(() => {
+    if (tourStep === 'done') setShowRealApp(true);
+  }, [tourStep]);
 
   return (
     <div className={styles.bar}>
@@ -35,6 +43,12 @@ export const TopBar: React.FC = () => {
           ⏹ Stoppa allt
         </button>
       </div>
+
+      <button className={styles.realAppBtn} onClick={() => setShowRealApp(true)}>
+        🚀 Riktiga appen
+      </button>
+
+      {showRealApp && <TryRealAppModal onClose={() => setShowRealApp(false)} />}
     </div>
   );
 };

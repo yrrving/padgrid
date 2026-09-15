@@ -47,3 +47,17 @@
   opacity: 0.4;
   cursor: default;
 }
+
+.realAppBtn {
+  padding: 7px 14px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.realAppBtn:hover {
+  background: var(--accent-hover);
+}

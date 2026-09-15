@@ -57,11 +57,17 @@
   color: var(--text-primary);
 }
 
-/* Greys out UI that isn't part of the current tour step. */
+/* Greys out UI that isn't part of the current tour step.
+   Deliberately NOT pointer-events:none here, unlike TrainCells' version of
+   this class: pressing an "off-script" pad there could break a linear
+   build sequence, so blocking made sense. Here, pressing any pad any time
+   is harmless — it just plays a sound — so a dimmed pad staying silent
+   when pressed would read as a bug, not guidance (exactly what happened:
+   pressing a dimmed Melodic pad mid-tour produced no sound at all). Dim
+   stays purely visual; the tour just waits for the demonstrated action. */
 .dim {
   opacity: 0.32;
   filter: grayscale(70%);
-  pointer-events: none;
   transition: opacity 0.2s, filter 0.2s;
 }
 
