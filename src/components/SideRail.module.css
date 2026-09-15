@@ -1,0 +1,97 @@
+.rail {
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--bg-panel);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+}
+
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+}
+
+.tabBtn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 6px;
+  font-size: 1.1rem;
+  color: var(--text-dim);
+}
+
+.tabBtn span {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tabBtn:hover {
+  color: var(--text-secondary);
+  background: var(--bg-hover);
+}
+
+.tabActive {
+  color: var(--accent);
+  background: var(--bg-card);
+}
+
+.panel {
+  flex: 1;
+  overflow: auto;
+  padding: 16px 8px;
+}
+
+.volumeRow {
+  display: flex;
+  justify-content: space-around;
+  height: 100%;
+  min-height: 220px;
+}
+
+.volumeCol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.volumeSlider {
+  writing-mode: vertical-lr;
+  direction: rtl;
+  appearance: slider-vertical;
+  width: 6px;
+  height: 160px;
+  accent-color: var(--pad-color);
+  cursor: pointer;
+}
+
+.volumeIcon {
+  font-size: 1rem;
+}
+
+.fxGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.fxBtn {
+  padding: 16px 8px;
+  border-radius: 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 700;
+  transition: background 0.12s;
+}
+
+.fxBtn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}

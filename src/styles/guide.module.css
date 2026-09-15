@@ -1,0 +1,148 @@
+/* ── Shared guided-tour visual language ──────────────────────────────────
+   Ported from TrainCells' Super handlett läge after two rounds of real
+   feedback there — starting from the fixed version instead of relearning:
+     - banner/pointerArrow float OVER the UI (position:absolute) instead of
+       taking their own row that pushes panels down
+     - the banner is pointer-events:none by default (with auto restored on
+       its own buttons) so it can never silently swallow a click meant for
+       the real UI underneath it
+     - pointerArrow comes in a compact size for tight targets, so it can
+       never grow wider than the small control it's supposed to point at
+       and hide it completely
+*/
+
+.banner {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 14px 22px;
+  background: var(--bg-panel);
+  border: 2px solid var(--accent);
+  border-radius: 16px;
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.55);
+  max-width: min(560px, calc(100% - 24px));
+  text-align: center;
+  pointer-events: none;
+}
+
+.bannerDone {
+  background: rgba(34, 90, 60, 0.95);
+  border-color: #4ca37a;
+}
+
+.bannerSkip {
+  flex-shrink: 0;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-bright);
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  pointer-events: auto;
+}
+
+.bannerSkip:hover {
+  background: var(--bg-active);
+  color: var(--text-primary);
+}
+
+/* Greys out UI that isn't part of the current tour step. */
+.dim {
+  opacity: 0.32;
+  filter: grayscale(70%);
+  pointer-events: none;
+  transition: opacity 0.2s, filter 0.2s;
+}
+
+.pointerArrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  width: fit-content;
+  padding: 10px 22px;
+  background: var(--accent);
+  border-radius: 16px;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #fff;
+  text-align: center;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.5);
+  animation: pointerBounce 0.7s ease-in-out infinite;
+}
+
+.pointerArrowIcon {
+  font-size: 2rem;
+  line-height: 1.1;
+}
+
+.pointerArrowCompact {
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  border-radius: 10px;
+}
+
+.pointerArrowIconCompact {
+  font-size: 1.25rem;
+}
+
+@keyframes pointerBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(10px); }
+}
+
+.pointerArrowBounceUp {
+  animation: pointerBounceUp 0.7s ease-in-out infinite;
+}
+
+@keyframes pointerBounceUp {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.pointerArrowAnchorTop {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 60;
+  pointer-events: none;
+}
+
+.pointerArrowAnchorAbove {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 60;
+  pointer-events: none;
+}
+
+.anchorWrap {
+  position: relative;
+}
+
+/* Glow ring put directly on the real target element — precise, unlike a
+   floating arrow that can only point roughly nearby. */
+.targetHighlight {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 10px;
+  animation: targetGlow 1s ease-in-out infinite;
+}
+
+@keyframes targetGlow {
+  0%, 100% { outline-color: var(--accent); }
+  50% { outline-color: transparent; }
+}

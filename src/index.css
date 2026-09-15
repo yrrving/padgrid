@@ -1,0 +1,75 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  /* ── Backgrounds (neutral dark — brand colors pop against these) ── */
+  --bg-darkest: #131517;
+  --bg-dark: #1a1d20;
+  --bg-mid: #22262a;
+  --bg-panel: #1e2124;
+  --bg-card: #282d32;
+  --bg-hover: #333a40;
+  --bg-active: #3d454e;
+  --border: rgba(255, 255, 255, 0.10);
+  --border-bright: rgba(255, 255, 255, 0.20);
+
+  /* ── Text ── */
+  --text-primary: #eef0f4;
+  --text-secondary: #9ca8b4;
+  --text-dim: #6b7888;
+
+  /* ── Accent (indigo — distinct from TrainCells' green) ── */
+  --accent: #6C6FF0;
+  --accent-hover: #5457D6;
+  --accent-glow: rgba(108, 111, 240, 0.22);
+
+  /* ── Pad category colors ── */
+  --cat-drums: #3DBE7A;
+  --cat-percussion: #B583F0;
+  --cat-bass: #4FA8E0;
+  --cat-melodic: #EF6FB8;
+  --cat-vocal: #3DD1C6;
+  --cat-fx: #F0A83D;
+
+  font-size: 16px;
+}
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--bg-darkest);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: inherit;
+  color: inherit;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+}
