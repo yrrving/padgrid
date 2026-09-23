@@ -22,7 +22,9 @@
   --text-dim: #6b7888;
 
   /* ── Accent (indigo — distinct from TrainCells' green) ── */
-  --accent: #6C6FF0;
+  /* Vit text på #6C6FF0 gav 4,06:1, under WCAG-kravet 4,5:1.
+     #5154C9 ger 6,07:1 med samma färgton. */
+  --accent: #5154C9;
   --accent-hover: #5457D6;
   --accent-glow: rgba(108, 111, 240, 0.22);
 
